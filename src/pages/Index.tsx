@@ -43,6 +43,18 @@ const Index = () => {
     });
   };
 
+  const editTask = (id: string, newText: string) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === id ? { ...task, text: newText } : task
+      )
+    );
+    toast({
+      title: "Task updated",
+      description: "Your task has been successfully updated.",
+    });
+  };
+
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background to-muted">
       <div className="max-w-2xl mx-auto">
@@ -62,6 +74,7 @@ const Index = () => {
               task={task}
               onComplete={completeTask}
               onDelete={deleteTask}
+              onEdit={editTask}
             />
           ))}
           
