@@ -8,18 +8,22 @@ interface Task {
   text: string;
   completed: boolean;
   scheduledDate?: Date;
+  scheduledTime?: string;
+  photoUrl?: string;
 }
 
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const { toast } = useToast();
 
-  const addTask = (text: string, scheduledDate?: Date) => {
+  const addTask = (text: string, scheduledDate?: Date, scheduledTime?: string, photoUrl?: string) => {
     const newTask = {
       id: crypto.randomUUID(),
       text,
       completed: false,
       scheduledDate,
+      scheduledTime,
+      photoUrl,
     };
     setTasks((prev) => [newTask, ...prev]);
     toast({
@@ -45,10 +49,10 @@ const Index = () => {
     });
   };
 
-  const editTask = (id: string, newText: string, scheduledDate?: Date) => {
+  const editTask = (id: string, newText: string, scheduledDate?: Date, scheduledTime?: string, photoUrl?: string) => {
     setTasks((prev) =>
       prev.map((task) =>
-        task.id === id ? { ...task, text: newText, scheduledDate } : task
+        task.id === id ? { ...task, text: newText, scheduledDate, scheduledTime, photoUrl } : task
       )
     );
     toast({

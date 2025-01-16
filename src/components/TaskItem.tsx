@@ -1,4 +1,4 @@
-import { Check, Pencil, Save, Trash2, X, Calendar as CalendarIcon } from "lucide-react";
+import { Check, Pencil, Save, Trash2, X, Calendar as CalendarIcon, Clock, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Input } from "./ui/input";
@@ -13,20 +13,24 @@ interface TaskItemProps {
     text: string;
     completed: boolean;
     scheduledDate?: Date;
+    scheduledTime?: string;
+    photoUrl?: string;
   };
   onComplete: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, newText: string, scheduledDate?: Date) => void;
+  onEdit: (id: string, newText: string, scheduledDate?: Date, scheduledTime?: string, photoUrl?: string) => void;
 }
 
 export function TaskItem({ task, onComplete, onDelete, onEdit }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState(task.text);
   const [editedDate, setEditedDate] = useState<Date | undefined>(task.scheduledDate);
+  const [editedTime, setEditedTime] = useState(task.scheduledTime || "");
+  const [editedPhotoUrl, setEditedPhotoUrl] = useState(task.photoUrl);
 
   const handleSave = () => {
     if (editedText.trim()) {
-      onEdit(task.id, editedText, editedDate);
+      onEdit(task.id, editedText, editedDate, editedTime, editedPhotoUrl);
       setIsEditing(false);
     }
   };
@@ -34,7 +38,17 @@ export function TaskItem({ task, onComplete, onDelete, onEdit }: TaskItemProps) 
   const handleCancel = () => {
     setEditedText(task.text);
     setEditedDate(task.scheduledDate);
+    setEditedTime(task.scheduledTime || "");
+    setEditedPhotoUrl(task.photoUrl);
     setIsEditing(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // For now, we'll just store the file name until we have backend storage
+      setEditedPhotoUrl(file.name);
+    }
   };
 
   return (
@@ -85,6 +99,21 @@ export function TaskItem({ task, onComplete, onDelete, onEdit }: TaskItemProps) 
               />
             </PopoverContent>
           </Popover>
+          <Input
+            type="time"
+            value={editedTime}
+            onChange={(e) => setEditedTime(e.target.value)}
+            className="w-32"
+          />
+          <label className="px-3 py-2 flex items-center justify-center border rounded-md hover:bg-accent cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <ImagePlus className="h-4 w-4" />
+          </label>
           <button
             onClick={handleSave}
             className="p-2 hover:text-primary transition-colors"
@@ -109,11 +138,17 @@ export function TaskItem({ task, onComplete, onDelete, onEdit }: TaskItemProps) 
             >
               {task.text}
             </span>
-            {task.scheduledDate && (
-              <span className="text-sm text-muted-foreground">
-                📅 {format(task.scheduledDate, "PPP")}
-              </span>
-            )}
+            <div className="text-sm text-muted-foreground space-x-4">
+              {task.scheduledDate && (
+                <span>📅 {format(task.scheduledDate, "PPP")}</span>
+              )}
+              {task.scheduledTime && (
+                <span>⏰ {task.scheduledTime}</span>
+              )}
+              {task.photoUrl && (
+                <span>📎 {task.photoUrl}</span>
+              )}
+            </div>
           </div>
           
           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
