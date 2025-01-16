@@ -1,11 +1,76 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { TaskInput } from "@/components/TaskInput";
+import { TaskItem } from "@/components/TaskItem";
+import { useToast } from "@/components/ui/use-toast";
+
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+}
 
 const Index = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const { toast } = useToast();
+
+  const addTask = (text: string) => {
+    const newTask = {
+      id: crypto.randomUUID(),
+      text,
+      completed: false,
+    };
+    setTasks((prev) => [newTask, ...prev]);
+    toast({
+      title: "Task added",
+      description: "Your new task has been added to the list.",
+    });
+  };
+
+  const completeTask = (id: string) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+    toast({
+      title: "Task deleted",
+      description: "The task has been removed from your list.",
+      variant: "destructive",
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background to-muted">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold tracking-tight mb-2">Tasks</h1>
+          <p className="text-muted-foreground">
+            Organize your day with elegance and simplicity
+          </p>
+        </div>
+
+        <TaskInput onAddTask={addTask} />
+
+        <div className="space-y-1">
+          {tasks.map((task) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              onComplete={completeTask}
+              onDelete={deleteTask}
+            />
+          ))}
+          
+          {tasks.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              No tasks yet. Add one to get started.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
