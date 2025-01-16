@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, Calendar as CalendarIcon, Clock, ImagePlus } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -8,11 +9,12 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface TaskInputProps {
-  onAddTask: (task: string, scheduledDate?: Date, scheduledTime?: string, photoUrl?: string) => void;
+  onAddTask: (task: string, description: string, scheduledDate?: Date, scheduledTime?: string, photoUrl?: string) => void;
 }
 
 export function TaskInput({ onAddTask }: TaskInputProps) {
   const [task, setTask] = useState("");
+  const [description, setDescription] = useState("");
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState<string>("");
   const [photoUrl, setPhotoUrl] = useState<string>();
@@ -20,8 +22,9 @@ export function TaskInput({ onAddTask }: TaskInputProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (task.trim()) {
-      onAddTask(task, date, time, photoUrl);
+      onAddTask(task, description, date, time, photoUrl);
       setTask("");
+      setDescription("");
       setDate(undefined);
       setTime("");
       setPhotoUrl(undefined);
@@ -31,7 +34,6 @@ export function TaskInput({ onAddTask }: TaskInputProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // For now, we'll just store the file name until we have backend storage
       setPhotoUrl(file.name);
     }
   };
@@ -87,6 +89,12 @@ export function TaskInput({ onAddTask }: TaskInputProps) {
           Add
         </Button>
       </div>
+      <Textarea
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="Add a description (optional)..."
+        className="min-h-[80px]"
+      />
       {photoUrl && (
         <div className="text-sm text-muted-foreground">
           Selected photo: {photoUrl}

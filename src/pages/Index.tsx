@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 interface Task {
   id: string;
   text: string;
+  description: string;
   completed: boolean;
   scheduledDate?: Date;
   scheduledTime?: string;
@@ -16,10 +17,11 @@ const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const { toast } = useToast();
 
-  const addTask = (text: string, scheduledDate?: Date, scheduledTime?: string, photoUrl?: string) => {
+  const addTask = (text: string, description: string, scheduledDate?: Date, scheduledTime?: string, photoUrl?: string) => {
     const newTask = {
       id: crypto.randomUUID(),
       text,
+      description,
       completed: false,
       scheduledDate,
       scheduledTime,
@@ -49,10 +51,10 @@ const Index = () => {
     });
   };
 
-  const editTask = (id: string, newText: string, scheduledDate?: Date, scheduledTime?: string, photoUrl?: string) => {
+  const editTask = (id: string, newText: string, newDescription: string, scheduledDate?: Date, scheduledTime?: string, photoUrl?: string) => {
     setTasks((prev) =>
       prev.map((task) =>
-        task.id === id ? { ...task, text: newText, scheduledDate, scheduledTime, photoUrl } : task
+        task.id === id ? { ...task, text: newText, description: newDescription, scheduledDate, scheduledTime, photoUrl } : task
       )
     );
     toast({
