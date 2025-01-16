@@ -1,32 +1,39 @@
-import { Check, Pencil, Save, Trash2, X } from "lucide-react";
+import { Check, Pencil, Save, Trash2, X, Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Input } from "./ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { Button } from "./ui/button";
 
 interface TaskItemProps {
   task: {
     id: string;
     text: string;
     completed: boolean;
+    scheduledDate?: Date;
   };
   onComplete: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, newText: string) => void;
+  onEdit: (id: string, newText: string, scheduledDate?: Date) => void;
 }
 
 export function TaskItem({ task, onComplete, onDelete, onEdit }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState(task.text);
+  const [editedDate, setEditedDate] = useState<Date | undefined>(task.scheduledDate);
 
   const handleSave = () => {
     if (editedText.trim()) {
-      onEdit(task.id, editedText);
+      onEdit(task.id, editedText, editedDate);
       setIsEditing(false);
     }
   };
 
   const handleCancel = () => {
     setEditedText(task.text);
+    setEditedDate(task.scheduledDate);
     setIsEditing(false);
   };
 
@@ -57,6 +64,27 @@ export function TaskItem({ task, onComplete, onDelete, onEdit }: TaskItemProps) 
             className="flex-1"
             autoFocus
           />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "px-3",
+                  editedDate && "text-primary"
+                )}
+              >
+                <CalendarIcon className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={editedDate}
+                onSelect={setEditedDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
           <button
             onClick={handleSave}
             className="p-2 hover:text-primary transition-colors"
@@ -72,14 +100,21 @@ export function TaskItem({ task, onComplete, onDelete, onEdit }: TaskItemProps) 
         </div>
       ) : (
         <>
-          <span
-            className={cn(
-              "flex-1 text-lg transition-all",
-              task.completed && "line-through text-muted-foreground"
+          <div className="flex-1">
+            <span
+              className={cn(
+                "text-lg transition-all block",
+                task.completed && "line-through text-muted-foreground"
+              )}
+            >
+              {task.text}
+            </span>
+            {task.scheduledDate && (
+              <span className="text-sm text-muted-foreground">
+                📅 {format(task.scheduledDate, "PPP")}
+              </span>
             )}
-          >
-            {task.text}
-          </span>
+          </div>
           
           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
             <button
